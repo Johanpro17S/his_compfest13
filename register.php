@@ -19,7 +19,7 @@
                         '".$_POST["age"]."',
                         '".$_POST["email"]."',
                         '".$_POST["username"]."',
-                        '".$_POST["password"]."',
+                        md5('".$_POST["password"]."'),
                         '1'
                         )";
             if(mysqli_query($conn,$query)){

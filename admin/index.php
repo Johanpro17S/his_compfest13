@@ -2,6 +2,10 @@
     include '../init.php';
     try {
         $session = SessionManager::getCurrentSession();
+        if(intval($session->role)==1){
+            header('location:../index.php');
+            exit(0);
+        }
     } catch (Exception $ex) {
         header('location:login.php');
         exit(0);
@@ -78,29 +82,32 @@
                 <p style="margin:0"><?=$app['description']?></p>
                 <button class="btn btn-sm btn-outline-light text-black-50" data-toggle="modal" data-target="#editAppointment"><i
                         class="fas fa-edit"></i>Edit</button>
+                <?php
+                    $list_patient = substr($app['list_patient'],1,strlen($app['list_patient'])-2);
+                    $lp = [];
+                    if($patient = mysqli_query($conn,"SELECT (ROW_NUMBER() OVER (ORDER BY id_acc)) as no,first_name,last_name,age,email FROM account where id_acc in($list_patient)")){
+                        while($pati = mysqli_fetch_array($patient)){
+                            $pati = json_decode(json_encode($pati));
+                            array_push($lp,$pati);
+                        }
+                ?>
+                <table id="datatable" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Age</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
-            <table id="datatable" class="table table-striped table-bordered" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Age</th>
-                        <th>Email</th>
-                    </tr>
-                </thead>
-                <tfoot>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Age</th>
-                        <th>Email</th>
-                    </tr>
-                </tfoot>
-            </table>
+            <?php }else{echo "<h5 class='m-3'>Not have patient</h5>";} ?>
             <button class="btn btn-sm btn-outline-danger mt-3 ml-3" data-toggle="modal"
                 data-target="#hapusAppointment"><i class="fas fa-trash"></i>Delete Appointment</button>
             <?php
-                }else{echo "<h4 class='m-3' style='margin:0'>Appointment Not Found</h4>";}}
+                }else{echo "<h4 class='m-3'>Appointment Not Found</h4>";}}
             ?>
         </div>
     </div>
@@ -205,13 +212,7 @@
     </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
-    </script>
     <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
-    </script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
     </script>
@@ -220,11 +221,11 @@
 
     <script>
         $('document').ready(function () {
-            // $('#datatable').DataTable({
-            //     "processing": true,
-            //     "serverSide": true,
-            //     "ajax": "../server_side/scripts/server_processing.php"
-            // });
+            $('#datatable').DataTable({
+                paging:true,
+                pageLength:10,
+                data:<?=json_encode($lp)?>
+            });
             $('#add_appointment_button').click(function () {
                 $.ajax({
                     url:"appointment_crud.php",
@@ -248,12 +249,6 @@
                         description:$('#description_ed').val(),
                         quota:$('#quota_ed').val(),
                         app_id:<?=$_GET['app_id']?>,
-                    },
-                    success:function(data){
-                        console.log(data)
-                    },
-                    error: function(data){
-                        console.log(data)
                     }
                 })
                 .done(function (data) {

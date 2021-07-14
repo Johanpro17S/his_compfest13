@@ -6,6 +6,7 @@ class Session{
         global $conn;
         $result = mysqli_query($conn,"SELECT * FROM account WHERE username='$username' AND role='$role'");
         if($d=mysqli_fetch_array($result)){
+            $this->id = $d['id_acc'];
             $this->first_name = $d['first_name'];
             $this->last_name = $d['last_name'];
             $this->age = $d['age'];
