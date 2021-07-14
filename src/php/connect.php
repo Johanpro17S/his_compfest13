@@ -1,4 +1,6 @@
 <?php
+
+//data config
 $servername = "localhost";
 $username = "root";
 $password = "";
