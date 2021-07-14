@@ -1,0 +1,12 @@
+{
+    "name": "johan/his_compfest",
+    "authors": [
+        {
+            "name": "Ahmad Johan Syahputra",
+            "email": "ahmadjohansyahputra@gmail.com"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^5.4"
+    }
+}
