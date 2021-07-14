@@ -2,6 +2,10 @@
     include 'init.php';
     try {
         $session = SessionManager::getCurrentSession();
+        if(intval($session->role)==0){
+            header('location:admin/index.php');
+            exit(0);
+        }
     } catch (Exception $ex) {
         header('location:login.php');
         exit(0);
